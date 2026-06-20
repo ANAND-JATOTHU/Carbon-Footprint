@@ -1,6 +1,6 @@
 """leaderboard_routes.py — Public leaderboard. Exposes only display_name + score."""
 from fastapi import APIRouter, Depends
-import aiosqlite
+from google.cloud.firestore_v1.async_client import AsyncClient
 
 from database import get_db
 
@@ -8,28 +8,27 @@ router = APIRouter()
 
 
 @router.get("")
-async def get_leaderboard(db: aiosqlite.Connection = Depends(get_db)):
+async def get_leaderboard(db: AsyncClient = Depends(get_db)):
     """
     Returns top 50 users sorted by lowest CO₂ score.
     PRIVACY: only display_name and total_co2 are returned.
     Diet, transport, home, and email are NEVER exposed.
     """
-    async with db.execute(
-        """
-        SELECT display_name, total_co2
-        FROM users
-        WHERE has_submitted = 1
-        ORDER BY total_co2 ASC
-        LIMIT 50
-        """
-    ) as cur:
-        rows = await cur.fetchall()
+    users_ref = db.collection("users")
+    # Note: Firestore requires a composite index for filtering on has_submitted and ordering by total_co2
+    # If the index is missing, Firestore will return an error with a link to create it.
+    query = users_ref.where("has_submitted", "==", 1).order_by("total_co2", direction="ASCENDING").limit(50)
+    
+    docs = query.stream()
+    leaderboard = []
+    rank = 1
+    async for doc in docs:
+        data = doc.to_dict()
+        leaderboard.append({
+            "rank": rank,
+            "display_name": data.get("display_name"),
+            "total_co2": data.get("total_co2", 0),
+        })
+        rank += 1
 
-    return [
-        {
-            "rank": i + 1,
-            "display_name": row["display_name"],
-            "total_co2": row["total_co2"],
-        }
-        for i, row in enumerate(rows)
-    ]
+    return leaderboard

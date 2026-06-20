@@ -12,87 +12,126 @@ import NeonButton from '../components/NeonButton'
 import { api } from '../api/client'
 import { useState, useEffect } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { CheckCircle, Plus, Leaf } from 'lucide-react'
-import { useApp as useAppCtx } from '../context/AppContext'
+import { CheckCircle, Plus, Leaf, Trash2 } from 'lucide-react'
+import TaskForm from '../components/TaskForm'
 
-function EcoActionsPanel() {
-  const { user, updateUser } = useApp()
-  const [actions, setActions]   = useState([])
-  const [logged, setLogged]     = useState([])
-  const [loading, setLoading]   = useState(null)
+function UserTasksPanel() {
+  const { user } = useApp()
+  const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [showForm, setShowForm] = useState(false)
+
+  const fetchTasks = () => {
+    api.tasks.get().then(setTasks).catch(console.error)
+  }
 
   useEffect(() => {
-    api.carbon.actions().then(setActions).catch(() => {})
+    fetchTasks()
   }, [])
 
-  async function logAction(action) {
-    if (logged.includes(action.id) || loading === action.id) return
-    setLoading(action.id)
+  async function handleCreateTask(taskData) {
+    setLoading(true)
     try {
-      await api.carbon.logAction(action.id)
-      setLogged(p => [...p, action.id])
+      await api.tasks.create(taskData.title, taskData.category, taskData.co2_saved)
+      setShowForm(false)
+      fetchTasks()
     } catch (e) {
-      // already logged or error
+      console.error(e)
     } finally {
-      setLoading(null)
+      setLoading(false)
     }
   }
 
-  const preview = actions.slice(0, 5)
+  async function handleDeleteTask(taskId) {
+    try {
+      await api.tasks.delete(taskId)
+      fetchTasks()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  // Calculate Today's Impact
+  const today = new Date().toISOString().split('T')[0]
+  const todayImpact = tasks
+    .filter(t => t.logged_at.startsWith(today))
+    .reduce((sum, t) => sum + t.co2_saved, 0)
 
   return (
-    <GlassCard delay={0.35} glowColor="toxic" className="p-5">
+    <GlassCard delay={0.35} glowColor="toxic" className="p-5 relative min-h-[300px]">
+      <AnimatePresence>
+        {showForm && (
+          <TaskForm 
+            onSubmit={handleCreateTask} 
+            onCancel={() => setShowForm(false)}
+            loading={loading}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-mono uppercase tracking-widest" style={{ color: 'rgba(57,255,20,0.7)' }}>
-          Today's Eco-Actions
-        </p>
-        <span className="text-xs font-mono px-2 py-0.5 rounded-full"
-          style={{ border: '1px solid rgba(57,255,20,0.25)', background: 'rgba(57,255,20,0.06)', color: '#39FF14' }}>
-          {logged.length}/{preview.length} done
-        </span>
+        <div>
+          <p className="text-xs font-mono uppercase tracking-widest" style={{ color: 'rgba(57,255,20,0.7)' }}>
+            My Eco-Tasks
+          </p>
+          <p className="text-[10px] font-mono text-gray-400 mt-1">
+            Today's Impact: <span className="text-toxic">−{todayImpact.toFixed(1)}kg CO₂</span>
+          </p>
+        </div>
+        <NeonButton
+          variant="toxic"
+          className="text-xs px-3 py-1.5 flex items-center gap-1"
+          onClick={() => setShowForm(true)}
+        >
+          <Plus size={12} /> Add Task
+        </NeonButton>
       </div>
+
       <div className="flex flex-col gap-2">
-        {preview.map((action, i) => {
-          const done = logged.includes(action.id)
-          return (
-            <motion.div
-              key={action.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.06, type: 'spring', stiffness: 130, damping: 14 }}
-              className="flex items-center justify-between p-3 rounded-xl"
-              style={{
-                background: done ? 'rgba(57,255,20,0.06)' : 'rgba(255,255,255,0.02)',
-                border: done ? '1px solid rgba(57,255,20,0.2)' : '1px solid rgba(255,255,255,0.05)',
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: done ? 'rgba(57,255,20,0.15)' : 'rgba(255,255,255,0.04)', border: done ? '1px solid rgba(57,255,20,0.35)' : '1px solid rgba(255,255,255,0.08)' }}>
-                  {done ? <CheckCircle size={11} style={{ color: '#39FF14' }} /> : <Plus size={11} style={{ color: 'rgba(255,255,255,0.25)' }} />}
+        <AnimatePresence>
+          {tasks.length === 0 ? (
+            <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs font-mono text-gray-500 py-4 text-center">
+              No tasks logged yet. Start making an impact!
+            </motion.p>
+          ) : (
+            tasks.map((task, i) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: i * 0.05, type: 'spring', stiffness: 130, damping: 14 }}
+                className="group flex items-center justify-between p-3 rounded-xl"
+                style={{
+                  background: 'rgba(57,255,20,0.06)',
+                  border: '1px solid rgba(57,255,20,0.2)',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(57,255,20,0.15)', border: '1px solid rgba(57,255,20,0.35)' }}>
+                    <CheckCircle size={11} style={{ color: '#39FF14' }} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/90" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {task.title}
+                    </p>
+                    <p className="text-xs font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                      {task.category} · −{task.co2_saved}kg CO₂
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm" style={{ color: done ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.85)', fontFamily: "'Space Grotesk', sans-serif", textDecoration: done ? 'line-through' : 'none' }}>
-                    {action.title}
-                  </p>
-                  <p className="text-xs font-mono" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                    {action.category} · −{action.co2_reduction}kg CO₂
-                  </p>
-                </div>
-              </div>
-              {!done && (
-                <NeonButton
-                  variant="toxic"
-                  className="text-xs px-3 py-1.5"
-                  onClick={() => logAction(action)}
-                  disabled={loading === action.id}
+                
+                <button
+                  onClick={() => handleDeleteTask(task.id)}
+                  className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-500 transition-all"
                 >
-                  {loading === action.id ? '...' : 'Log'}
-                </NeonButton>
-              )}
-            </motion.div>
-          )
-        })}
+                  <Trash2 size={14} />
+                </button>
+              </motion.div>
+            ))
+          )}
+        </AnimatePresence>
       </div>
     </GlassCard>
   )
@@ -162,7 +201,7 @@ export default function DashboardPage() {
               </GlassCard>
 
               {/* Eco-actions */}
-              <EcoActionsPanel />
+              <UserTasksPanel />
             </div>
           </motion.div>
         )}

@@ -9,6 +9,8 @@ import GlassCard from '../components/GlassCard'
 import NeonButton from '../components/NeonButton'
 import { api } from '../api/client'
 import { useApp } from '../context/AppContext'
+import { auth } from '../firebase'
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 export default function LoginPage() {
   const { login } = useApp()
@@ -29,12 +31,22 @@ export default function LoginPage() {
     setError('')
     try {
       const res = mode === 'login'
-        ? await api.auth.login(email, pass)
-        : await api.auth.register(email, pass)
-      login(res.access_token, res.user)
+        ? await signInWithEmailAndPassword(auth, email, pass)
+        : await createUserWithEmailAndPassword(auth, email, pass)
+        
+      const token = await res.user.getIdToken()
+      
+      // Store token early so sync request can use it
+      localStorage.setItem('czToken', token)
+      
+      // Sync user profile from backend
+      const userData = await api.auth.sync()
+      login(token, userData)
       navigate(from, { replace: true })
     } catch (err) {
-      setError(err.message)
+      if (err.code === 'auth/email-already-in-use') setError('Email already registered')
+      else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') setError('Invalid credentials')
+      else setError(err.message)
     } finally {
       setLoad(false)
     }

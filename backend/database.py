@@ -1,15 +1,10 @@
 """
-database.py — Async SQLite setup using aiosqlite.
-Database is ephemeral (/tmp) — seeded with demo data on every cold start.
+database.py — Async Google Cloud Firestore setup.
 """
-import aiosqlite
+from google.cloud.firestore_v1.async_client import AsyncClient
 import uuid
 import random
-from passlib.context import CryptContext
-
-DB_PATH = "/tmp/carbozero.db"
-
-_pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from datetime import datetime, timezone
 
 # ── CO₂ emission factors (IPCC-derived, metric tons / year) ──
 DIET_FACTORS = {
@@ -58,72 +53,41 @@ def generate_display_name() -> str:
         f"_{random.randint(100, 9999)}"
     )
 
-
 # ── DB helpers ────────────────────────────────────────────────
-async def get_db():
-    db = await aiosqlite.connect(DB_PATH)
-    db.row_factory = aiosqlite.Row
-    try:
-        yield db
-    finally:
-        await db.close()
+# Use a global client instance
+db_client = AsyncClient(project="carbon-zero-500016")
 
+async def get_db():
+    yield db_client
 
 async def init_db():
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id            TEXT PRIMARY KEY,
-                email         TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                display_name  TEXT NOT NULL,
-                diet          TEXT,
-                transport     TEXT,
-                home          TEXT,
-                total_co2     REAL DEFAULT 0,
-                has_submitted INTEGER DEFAULT 0,
-                created_at    TEXT DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS user_tasks (
-                id          TEXT PRIMARY KEY,
-                user_id     TEXT NOT NULL,
-                title       TEXT NOT NULL,
-                category    TEXT NOT NULL,
-                co2_saved   REAL NOT NULL,
-                logged_at   TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id)
-            )
-        """)
-
-        await db.commit()
-        await _seed_demo_data(db)
-
-
-async def _seed_demo_data(db):
-    """Pre-populate realistic demo users so leaderboard looks alive on cold start."""
-    demo = [
-        ("SolarHawk_4021",  "vegan",        "public_bike",   "apartment",   2.5),
-        ("EcoLynx_99",      "vegetarian",   "ev",            "apartment",   3.4),
-        ("GreenCrane_711",  "mixed",        "standard_car",  "apartment",   4.2),
-        ("TerraEagle_X",    "mixed",        "standard_car",  "small_house", 5.5),
-        ("LeafFox_303",     "high_meat",    "suv",           "small_house", 7.0),
-        ("OceanRaven_88",   "vegetarian",   "public_bike",   "apartment",   2.7),
-        ("WindDeer_512",    "vegan",        "ev",            "small_house", 3.0),
-    ]
-    for name, diet, transport, home, co2 in demo:
-        uid = str(uuid.uuid4())
-        ph = _pwd_ctx.hash("demo-password")
-        await db.execute(
-            """
-            INSERT OR IGNORE INTO users
-            (id, email, password_hash, display_name, diet, transport, home, total_co2, has_submitted)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
-            """,
-            (uid, f"{name.lower()}@demo.internal", ph, name, diet, transport, home, co2),
-        )
-    await db.commit()
+    # Pre-populate realistic demo users so leaderboard looks alive on cold start.
+    demo_ref = db_client.collection("users").document("demo_seeded")
+    doc = await demo_ref.get()
+    if not doc.exists:
+        demo = [
+            ("SolarHawk_4021",  "vegan",        "public_bike",   "apartment",   2.5),
+            ("EcoLynx_99",      "vegetarian",   "ev",            "apartment",   3.4),
+            ("GreenCrane_711",  "mixed",        "standard_car",  "apartment",   4.2),
+            ("TerraEagle_X",    "mixed",        "standard_car",  "small_house", 5.5),
+            ("LeafFox_303",     "high_meat",    "suv",           "small_house", 7.0),
+            ("OceanRaven_88",   "vegetarian",   "public_bike",   "apartment",   2.7),
+            ("WindDeer_512",    "vegan",        "ev",            "small_house", 3.0),
+        ]
+        batch = db_client.batch()
+        for name, diet, transport, home, co2 in demo:
+            uid = str(uuid.uuid4())
+            ref = db_client.collection("users").document(uid)
+            batch.set(ref, {
+                "id": uid,
+                "email": f"{name.lower()}@demo.internal",
+                "display_name": name,
+                "diet": diet,
+                "transport": transport,
+                "home": home,
+                "total_co2": co2,
+                "has_submitted": 1,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+        batch.set(demo_ref, {"seeded": True})
+        await batch.commit()

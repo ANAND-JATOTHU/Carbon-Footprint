@@ -27,18 +27,20 @@ async function request(path, options = {}) {
 
 export const api = {
   auth: {
-    register: (email, password) =>
-      request('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) }),
-    login: (email, password) =>
-      request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+    sync: () =>
+      request('/auth/sync', { method: 'POST' }),
     me: () => request('/auth/me'),
   },
   carbon: {
     submit: (diet, transport, home) =>
       request('/carbon/submit', { method: 'POST', body: JSON.stringify({ diet, transport, home }) }),
-    actions: () => request('/carbon/actions'),
-    logAction: (action_id) =>
-      request('/carbon/actions/log', { method: 'POST', body: JSON.stringify({ action_id }) }),
+  },
+  tasks: {
+    get: () => request('/carbon/tasks'),
+    create: (title, category, co2_saved) =>
+      request('/carbon/tasks', { method: 'POST', body: JSON.stringify({ title, category, co2_saved }) }),
+    delete: (task_id) =>
+      request(`/carbon/tasks/${task_id}`, { method: 'DELETE' }),
   },
   leaderboard: {
     get: () => request('/leaderboard'),

@@ -1,7 +1,9 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
-aiosqlite>=0.20.0
-slowapi>=0.1.9
+fastapi==0.110.0
+uvicorn==0.27.1
+pydantic==2.6.3
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+slowapi==0.1.9
+firebase-admin==6.5.0
+google-cloud-firestore==2.15.0
 python-multipart>=0.0.9
