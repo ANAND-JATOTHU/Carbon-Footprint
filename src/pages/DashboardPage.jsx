@@ -8,7 +8,6 @@ import { useApp } from '../context/AppContext'
 import GlassCard from '../components/GlassCard'
 import OnboardingWizard from '../components/OnboardingWizard'
 import CarbonChart from '../components/CarbonChart'
-import SecurityConsole from '../components/SecurityConsole'
 import NeonButton from '../components/NeonButton'
 import { api } from '../api/client'
 import { useState, useEffect } from 'react'
@@ -150,10 +149,10 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 80, damping: 15 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start"
+            className="max-w-4xl mx-auto flex flex-col gap-5"
           >
-            {/* LEFT — Charts + Actions */}
-            <div className="lg:col-span-2 flex flex-col gap-5">
+            {/* Charts + Actions */}
+            <div className="flex flex-col gap-5">
               {/* Carbon chart */}
               <GlassCard delay={0.1} glowColor="cyan" className="p-6">
                 <p className="text-xs font-mono uppercase tracking-widest mb-5" style={{ color: 'rgba(0,240,255,0.6)' }}>
@@ -164,11 +163,6 @@ export default function DashboardPage() {
 
               {/* Eco-actions */}
               <EcoActionsPanel />
-            </div>
-
-            {/* RIGHT — Security console */}
-            <div className="lg:col-span-1">
-              <SecurityConsole />
             </div>
           </motion.div>
         )}

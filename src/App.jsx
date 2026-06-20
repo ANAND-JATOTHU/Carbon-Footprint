@@ -18,9 +18,6 @@ export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        {/* Scan-line overlay */}
-        <div className="scan-overlay fixed inset-0 pointer-events-none z-50" />
-
         <TopBar />
 
         <Routes>

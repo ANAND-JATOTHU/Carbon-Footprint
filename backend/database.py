@@ -89,12 +89,13 @@ async def init_db():
         """)
 
         await db.execute("""
-            CREATE TABLE IF NOT EXISTS user_actions (
-                id         TEXT PRIMARY KEY,
-                user_id    TEXT NOT NULL,
-                action_id  INTEGER NOT NULL,
-                co2_saved  REAL NOT NULL,
-                logged_at  TEXT DEFAULT CURRENT_TIMESTAMP,
+            CREATE TABLE IF NOT EXISTS user_tasks (
+                id          TEXT PRIMARY KEY,
+                user_id     TEXT NOT NULL,
+                title       TEXT NOT NULL,
+                category    TEXT NOT NULL,
+                co2_saved   REAL NOT NULL,
+                logged_at   TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
