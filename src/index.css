@@ -1,0 +1,197 @@
+/* ============================================================
+   CarbonZero — Anti-Gravity Design System
+   Global CSS (Tailwind v4 CSS-first configuration)
+   ============================================================ */
+
+@import "tailwindcss";
+
+/* ── Custom Theme Tokens ─────────────────────────────────── */
+@theme {
+  /* Colors */
+  --color-void:         #0A0E17;
+  --color-void-900:     #0D1220;
+  --color-void-800:     #111827;
+  --color-glass:        rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.10);
+
+  --color-cyan:         #00F0FF;
+  --color-cyan-dim:     rgba(0, 240, 255, 0.15);
+  --color-cyan-glow:    rgba(0, 240, 255, 0.25);
+
+  --color-toxic:        #39FF14;
+  --color-toxic-dim:    rgba(57, 255, 20, 0.15);
+  --color-toxic-glow:   rgba(57, 255, 20, 0.25);
+
+  --color-hacker:       #FF0055;
+  --color-hacker-dim:   rgba(255, 0, 85, 0.15);
+  --color-hacker-glow:  rgba(255, 0, 85, 0.30);
+
+  --color-muted:        rgba(255, 255, 255, 0.45);
+  --color-surface:      rgba(255, 255, 255, 0.05);
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+
+  /* Typography */
+  --font-display: 'Space Grotesk', 'Rajdhani', ui-sans-serif, system-ui;
+  --font-mono:    'Roboto Mono', ui-monospace, monospace;
+  --font-body:    'Space Grotesk', ui-sans-serif, system-ui;
+
+  /* Spacing / Radii */
+  --radius-card:    1.25rem;   /* 20px */
+  --radius-pill:    9999px;
+
+  /* Shadows / Glows */
+  --shadow-cyan:   0 0 40px 4px rgba(0, 240, 255, 0.22), 0 0 80px 8px rgba(0, 240, 255, 0.10);
+  --shadow-toxic:  0 0 40px 4px rgba(57, 255, 20, 0.22),  0 0 80px 8px rgba(57, 255, 20, 0.10);
+  --shadow-hacker: 0 0 40px 4px rgba(255, 0, 85, 0.30),   0 0 80px 8px rgba(255, 0, 85, 0.14);
+  --shadow-card:   0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Base Reset ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-void);
+  color: rgba(255, 255, 255, 0.90);
+  font-family: var(--font-body);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ── Starfield / Subtle Background Noise ─────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,240,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(57,255,20,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255,0,85,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Scrollbar Styling ───────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.25);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.50);
+}
+
+/* ── Glass Card Utility ──────────────────────────────────── */
+.glass-card {
+  background: var(--color-glass);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  box-shadow: var(--shadow-cyan), var(--shadow-card);
+}
+
+/* ── Neon Text Utilities ─────────────────────────────────── */
+.text-cyan  { color: var(--color-cyan);   }
+.text-toxic { color: var(--color-toxic);  }
+.text-hacker{ color: var(--color-hacker); }
+.text-muted { color: var(--color-muted);  }
+
+.glow-cyan  { text-shadow: 0 0 18px rgba(0,240,255,0.80),  0 0 40px rgba(0,240,255,0.40); }
+.glow-toxic { text-shadow: 0 0 18px rgba(57,255,20,0.80),  0 0 40px rgba(57,255,20,0.40); }
+.glow-hacker{ text-shadow: 0 0 18px rgba(255,0,85,0.90),   0 0 40px rgba(255,0,85,0.50); }
+
+/* ── Terminal Text ───────────────────────────────────────── */
+.font-mono  { font-family: var(--font-mono); }
+.font-display { font-family: var(--font-display); }
+
+/* ── Animated Gradient Border ────────────────────────────── */
+.border-animated {
+  position: relative;
+  border-radius: var(--radius-card);
+}
+.border-animated::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--radius-card) + 1px);
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0,240,255,0.5), rgba(57,255,20,0.3), rgba(0,240,255,0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Pulse animations ────────────────────────────────────── */
+@keyframes pulse-cyan {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,240,255,0.4); }
+  50%       { box-shadow: 0 0 30px rgba(0,240,255,0.8), 0 0 60px rgba(0,240,255,0.4); }
+}
+
+@keyframes pulse-hacker {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,0,85,0.4); }
+  50%       { box-shadow: 0 0 30px rgba(255,0,85,0.9), 0 0 60px rgba(255,0,85,0.5); }
+}
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-pulse-cyan   { animation: pulse-cyan   2s ease-in-out infinite; }
+.animate-pulse-hacker { animation: pulse-hacker 1.5s ease-in-out infinite; }
+.animate-blink        { animation: terminal-blink 1s step-end infinite; }
+
+/* ── Scan line overlay (optional effect) ─────────────────── */
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.scan-overlay::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0,240,255,0.15), transparent);
+  animation: scan-line 4s linear infinite;
+}
+
+/* ── Button reset ────────────────────────────────────────── */
+button { cursor: pointer; font-family: inherit; }
+
+/* ── Selection color ─────────────────────────────────────── */
+::selection {
+  background: rgba(0, 240, 255, 0.30);
+  color: #fff;
+}

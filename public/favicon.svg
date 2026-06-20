@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0A0E17"/>
+    </radialGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="#0A0E17"/>
+  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+  <!-- Lightning bolt / leaf hybrid -->
+  <polygon points="18,4 10,17 16,17 14,28 22,15 16,15" fill="#00F0FF" opacity="0.9"
+    style="filter: drop-shadow(0 0 4px #00F0FF)"/>
+</svg>
