@@ -2,7 +2,7 @@
 
 > *Track your CO₂ impact. Zero surveillance. Maximum security.*
 
-A cyberpunk/eco "Anti-Gravity" themed hackathon project — a privacy-first carbon footprint tracker with real-time anti-cheat security monitoring.
+A cyberpunk/eco-themed hackathon project — a privacy-first carbon footprint tracker with real-time anti-cheat security monitoring.
 
 ---
 
@@ -24,13 +24,13 @@ A cyberpunk/eco "Anti-Gravity" themed hackathon project — a privacy-first carb
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19 + Vite 8 |
+| Frontend | React 19 + Vite |
 | Styling | Tailwind CSS v4 (CSS-first config) |
 | Animation | Motion v12 (`motion/react`) — spring physics |
 | Data Viz | Recharts — neon donut chart |
 | Icons | Lucide React |
-| Backend (Phase 2) | Python FastAPI |
-| Database (Phase 2) | PostgreSQL |
+| Backend | Python FastAPI |
+| Database | SQLite (aiosqlite) / PostgreSQL |
 | Deployment | Google Cloud Run (single-container) |
 
 ---
@@ -38,14 +38,12 @@ A cyberpunk/eco "Anti-Gravity" themed hackathon project — a privacy-first carb
 ## 🚀 Getting Started
 
 ```bash
-# Install dependencies
+# Install frontend dependencies
 npm install
 
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
 ```
 
 ---
@@ -60,9 +58,13 @@ src/
 │   ├── TopBar.jsx           # Navigation + security status badge
 │   ├── CarbonDashboard.jsx  # Left panel: CO2 score, donut chart, eco-actions
 │   └── SecurityConsole.jsx  # Right panel: live threat monitoring terminal
-├── App.jsx                  # Root layout (2/3 + 1/3 grid)
+├── App.jsx                  # Root layout & routing
 ├── main.jsx                 # React entry point
-└── index.css               # Global CSS + Tailwind v4 theme tokens
+└── index.css                # Global CSS + Tailwind v4 theme tokens
+backend/
+├── main.py                  # FastAPI Entrypoint
+├── database.py              # SQLite Database setup
+├── routes/                  # API endpoints
 ```
 
 ---
@@ -80,7 +82,7 @@ src/
 (Sliding-window rate limiter)         (Anomaly: reject >50kg/tx)
                                               │
                                               ▼
-                              [Anonymized PostgreSQL] ──> [Leaderboard]
+                              [Anonymized Database] ──> [Leaderboard]
 ```
 
 ---
@@ -88,9 +90,9 @@ src/
 ## 📋 Phase Roadmap
 
 - [x] **Phase 1**: Foundation layout, design system, glassmorphism UI, security terminal
-- [ ] **Phase 2**: Onboarding wizard (3-stage form), heuristic CO2 calculator
-- [ ] **Phase 3**: FastAPI backend, JWT auth, rate limiting, PostgreSQL
-- [ ] **Phase 4**: WebSocket real-time security log streaming, leaderboard
+- [x] **Phase 2**: Onboarding wizard (3-stage form), heuristic CO2 calculator
+- [x] **Phase 3**: FastAPI backend, JWT auth, rate limiting, Database
+- [x] **Phase 4**: Server-Sent Events (SSE) real-time security log streaming, leaderboard
 - [ ] **Phase 5**: Docker containerization, Cloud Run deployment
 
 ---

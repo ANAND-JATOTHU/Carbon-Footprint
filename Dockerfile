@@ -1,38 +1,36 @@
-# ============================================================
-# Stage 1 — Build the React app
-# ============================================================
-FROM node:22-alpine AS builder
-
+# Build stage for React frontend
+FROM node:22-alpine AS frontend-build
 WORKDIR /app
-
-# Copy package files first (Docker layer caching)
 COPY package*.json ./
-
-# Install dependencies (ci = clean, reproducible install)
-RUN npm ci
-
-# Copy all source files
+RUN npm install
 COPY . .
-
-# Build production bundle
 RUN npm run build
 
-# ============================================================
-# Stage 2 — Serve with lightweight Nginx
-# ============================================================
-FROM nginx:1.27-alpine AS production
+# Production stage for FastAPI backend
+FROM python:3.10-slim
+WORKDIR /app
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+# Non-root user setup (NFR-3)
+RUN useradd -m appuser
+RUN chown -R appuser:appuser /app
 
-# Copy our custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install backend dependencies
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# Ensure email-validator is installed
+RUN pip install --no-cache-dir pydantic[email] bcrypt==4.0.1
 
-# Copy built React app from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy backend code
+COPY backend/ ./
 
-# Expose port 8080 (Cloud Run default)
+# Copy built frontend assets
+COPY --from=frontend-build /app/dist ./dist
+
+# Switch to non-root user
+USER appuser
+
+# Expose port (Cloud Run defaults to 8080)
 EXPOSE 8080
 
-# Run nginx in foreground (required for containers)
-CMD ["nginx", "-g", "daemon off;"]
+# Run FastAPI via Uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
