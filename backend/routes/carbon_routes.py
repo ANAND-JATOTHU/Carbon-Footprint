@@ -38,13 +38,17 @@ def _doc_to_user(doc) -> dict:
     }
 
 
-@router.post("/submit")
+@router.post("/submit", response_model=dict)
 async def submit_carbon(
     body: SubmitBody,
     request: Request,
     user_id: str = Depends(get_current_user_id),
     db: AsyncClient = Depends(get_db),
-):
+) -> dict:
+    """
+    Update the current user's carbon profile based on lifestyle choices.
+    Calculates CO2 and updates the Firestore document.
+    """
     valid_diets = {"vegan", "vegetarian", "mixed", "high_meat"}
     valid_transport = {"public_bike", "ev", "standard_car", "suv"}
     valid_home = {"apartment", "small_house", "large_house"}

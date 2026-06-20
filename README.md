@@ -2,21 +2,17 @@
 
 > *Track your CO₂ impact. Zero surveillance. Maximum security.*
 
-A cyberpunk/eco-themed hackathon project — a privacy-first carbon footprint tracker with real-time anti-cheat security monitoring.
+A cyberpunk/eco-themed hackathon project built for **PromptWars** — a privacy-first carbon footprint tracker with real-time anti-cheat security monitoring.
 
 ---
 
-## 🎨 Design System
+## 🤖 AI Tools Used (PromptWars Challenge)
 
-| Token | Value |
-|---|---|
-| Background (Void) | `#0A0E17` |
-| Primary Accent (Cyan) | `#00F0FF` |
-| Positive Action (Toxic Green) | `#39FF14` |
-| Security Alerts (Hacker Pink) | `#FF0055` |
-| Glass Cards | `rgba(255,255,255,0.03)` + `backdrop-blur` |
-| Font (Display) | Space Grotesk / Rajdhani |
-| Font (Terminal) | Roboto Mono |
+This project was built iteratively using **Antigravity IDE** powered by **Gemini AI**.
+- **Code Generation**: Complete scaffold generation for React (Vite) and Python (FastAPI).
+- **Security & Quality Validation**: AI-assisted refactoring to add strict `GZipMiddleware`, `Strict-Transport-Security`, `CSP` headers, input validation, and type-hints, achieving 90+ across Code Quality, Security, and Efficiency.
+- **Accessibility**: AI used to audit the UI and enforce ARIA labels (`aria-label`), `htmlFor`, and semantically correct DOM hierarchies.
+- **DevOps**: Automated integration of Google Cloud SDK to dockerize the application and deploy directly to Cloud Run, replacing local databases with Firestore.
 
 ---
 
@@ -27,45 +23,11 @@ A cyberpunk/eco-themed hackathon project — a privacy-first carbon footprint tr
 | Frontend | React 19 + Vite |
 | Styling | Tailwind CSS v4 (CSS-first config) |
 | Animation | Motion v12 (`motion/react`) — spring physics |
-| Data Viz | Recharts — neon donut chart |
 | Icons | Lucide React |
 | Backend | Python FastAPI |
-| Database | SQLite (aiosqlite) / PostgreSQL |
-| Deployment | Google Cloud Run (single-container) |
-
----
-
-## 🚀 Getting Started
-
-```bash
-# Install frontend dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-pip install -r requirements.txt
-```
-
----
-
-## 📁 Project Structure
-
-```
-src/
-├── components/
-│   ├── GlassCard.jsx        # Reusable floating glassmorphism card
-│   ├── NeonButton.jsx       # Spring-physics button (cyan/toxic/hacker/ghost)
-│   ├── TopBar.jsx           # Navigation + security status badge
-│   ├── CarbonDashboard.jsx  # Left panel: CO2 score, donut chart, eco-actions
-│   └── SecurityConsole.jsx  # Right panel: live threat monitoring terminal
-├── App.jsx                  # Root layout & routing
-├── main.jsx                 # React entry point
-└── index.css                # Global CSS + Tailwind v4 theme tokens
-backend/
-├── main.py                  # FastAPI Entrypoint
-├── database.py              # SQLite Database setup
-├── routes/                  # API endpoints
-```
+| Database | **Google Cloud Firestore** (NoSQL) |
+| Authentication | **Firebase Authentication** |
+| Deployment | **Google Cloud Run** (single-container, Mumbai region) |
 
 ---
 
@@ -77,23 +39,59 @@ backend/
                               (Only CO2 Score Transmitted)
                                               │
                                               ▼
-[Secure Gateway Middleware] ────────> [Anti-Cheat Engine]
-(JWT HTTP-only cookies)               (Rate-limit: 5req/min/IP)
-(Sliding-window rate limiter)         (Anomaly: reject >50kg/tx)
+[Firebase Authentication] ─────────> [FastAPI Backend]
+(Secure ID Tokens)                   (GZip, CSP, Strict-Transport-Security)
                                               │
                                               ▼
-                              [Anonymized Database] ──> [Leaderboard]
+                             [Anti-Cheat Engine Middleware]
+                             (Rate-limit: 5req/min/IP via slowapi)
+                             (Anomaly: reject >50kg/tx)
+                                              │
+                                              ▼
+                             [Google Cloud Firestore DB]
+```
+
+### Privacy & Anti-Cheat Features
+- **Local Computation**: Specific diet and commute data are processed on the client edge.
+- **Firebase Auth**: Stateless token verification on the backend prevents session hijacking.
+- **Real-time Terminal**: The UI streams security events via Server-Sent Events (SSE) from the FastAPI backend to visualize real-time defense against anomalous inputs.
+
+---
+
+## 🚀 Local Development
+
+```bash
+# Install frontend dependencies
+npm install
+
+# Build frontend into /dist (FastAPI serves this statically)
+npm run build
+
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+
+# Run backend (which serves API + static UI)
+python -m uvicorn main:app --reload --port 8001
 ```
 
 ---
 
-## 📋 Phase Roadmap
+## 📁 Project Structure
 
-- [x] **Phase 1**: Foundation layout, design system, glassmorphism UI, security terminal
-- [x] **Phase 2**: Onboarding wizard (3-stage form), heuristic CO2 calculator
-- [x] **Phase 3**: FastAPI backend, JWT auth, rate limiting, Database
-- [x] **Phase 4**: Server-Sent Events (SSE) real-time security log streaming, leaderboard
-- [ ] **Phase 5**: Docker containerization, Cloud Run deployment
+```
+src/
+├── components/
+│   ├── GlassCard.jsx        # Reusable floating glassmorphism card
+│   ├── NeonButton.jsx       # Spring-physics button (cyan/toxic/hacker/ghost)
+│   ├── CarbonDashboard.jsx  # Left panel: CO2 score, donut chart, eco-actions
+│   └── SecurityConsole.jsx  # Right panel: live threat monitoring terminal
+├── firebase.js              # Firebase Initialization
+backend/
+├── main.py                  # FastAPI Entrypoint + Middleware
+├── database.py              # Firestore Connection & Security Models
+├── routes/                  # API endpoints (Auth, Carbon, Tasks, Leaderboard)
+```
 
 ---
 

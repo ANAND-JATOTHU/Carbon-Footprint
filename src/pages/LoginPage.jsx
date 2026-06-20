@@ -146,6 +146,7 @@ export default function LoginPage() {
                   <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(0,240,255,0.5)' }} />
                   <input
                     type="email"
+                    aria-label="Email Address"
                     placeholder="your@email.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -167,6 +168,7 @@ export default function LoginPage() {
                   <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(0,240,255,0.5)' }} />
                   <input
                     type={show ? 'text' : 'password'}
+                    aria-label="Password"
                     placeholder={mode === 'register' ? 'Min 6 characters' : 'Password'}
                     value={pass}
                     onChange={e => setPass(e.target.value)}
@@ -183,6 +185,7 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
+                    aria-label={show ? "Hide password" : "Show password"}
                     onClick={() => setShow(v => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
                     style={{ color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }}

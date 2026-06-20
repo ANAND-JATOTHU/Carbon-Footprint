@@ -32,6 +32,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.gemini/
 
 # ── OS generated ─────────────────────────────────────────────
 .DS_Store
@@ -63,6 +64,7 @@ ENV/
 # ── Testing ───────────────────────────────────────────────────
 coverage/
 .nyc_output/
+.pytest_cache/
 
 # ── Misc ──────────────────────────────────────────────────────
 *.orig

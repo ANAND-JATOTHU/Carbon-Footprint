@@ -124,6 +124,7 @@ function UserTasksPanel() {
                 
                 <button
                   onClick={() => handleDeleteTask(task.id)}
+                  aria-label={`Delete task ${task.title}`}
                   className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-500 transition-all"
                 >
                   <Trash2 size={14} />

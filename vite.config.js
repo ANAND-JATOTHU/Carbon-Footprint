@@ -8,6 +8,19 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'firebase/app', 'firebase/auth', 'firebase/firestore', 'motion/react', 'lucide-react'],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     host: true,

@@ -26,6 +26,7 @@ export default function TaskForm({ onSubmit, onCancel, loading }) {
       <GlassCard className="w-full max-w-sm p-6 relative border border-cyan-500/30">
         <button
           onClick={onCancel}
+          aria-label="Close task form"
           className="absolute top-4 right-4 text-gray-400 hover:text-white"
         >
           <X size={20} />
@@ -35,8 +36,9 @@ export default function TaskForm({ onSubmit, onCancel, loading }) {
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-mono text-gray-400 mb-1">Task Title</label>
+            <label htmlFor="task-title" className="block text-xs font-mono text-gray-400 mb-1">Task Title</label>
             <input
+              id="task-title"
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -48,8 +50,9 @@ export default function TaskForm({ onSubmit, onCancel, loading }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1">Category</label>
+              <label htmlFor="task-category" className="block text-xs font-mono text-gray-400 mb-1">Category</label>
               <select
+                id="task-category"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 className="w-full bg-black/40 border border-gray-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors"
@@ -61,8 +64,9 @@ export default function TaskForm({ onSubmit, onCancel, loading }) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1">CO₂ Saved (kg)</label>
+              <label htmlFor="task-co2" className="block text-xs font-mono text-gray-400 mb-1">CO₂ Saved (kg)</label>
               <input
+                id="task-co2"
                 type="number"
                 step="0.1"
                 min="0.1"
