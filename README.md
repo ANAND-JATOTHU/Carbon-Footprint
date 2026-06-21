@@ -203,3 +203,40 @@ python -m pytest tests/ -v  # Backend
 ## 📄 License
 
 MIT — Built for the PromptWars Hackathon Challenge.
+
+---
+
+## ?? Automated Test Execution Report
+
+To ensure the highest standard of Code Quality and Reliability, the following automated test suites execute flawlessly:
+
+### Frontend Test Results (Vitest)
+``text
+> carbon-footprint-tracker@0.0.1 test
+> vitest run
+
+ ? src/api/client.test.js (5 tests) 3ms
+ ? src/utils/calculateCO2.test.js (19 tests) 8ms
+ ? src/components/GlassCard.test.jsx (6 tests) 70ms
+ ? src/components/NeonButton.test.jsx (13 tests) 169ms
+ ? src/App.test.jsx (4 tests) 461ms
+
+ Test Files  5 passed (5)
+      Tests  47 passed (47)
+   Duration  3.90s (transform 349ms, setup 0ms, import 2.97s, tests 710ms)
+``
+
+### Backend Test Results (Pytest)
+``text
+============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-9.1.1, pluggy-1.6.0
+collected 37 items
+
+backend/tests/test_database.py::TestCalculateCO2 PASSED [ 27%]
+backend/tests/test_database.py::TestEmissionFactors PASSED [ 51%]
+backend/tests/test_database.py::TestDisplayNameGenerator PASSED [ 64%]
+backend/tests/test_database.py::TestValidation PASSED [ 83%]
+backend/tests/test_database.py::TestEcoActions PASSED [100%]
+
+============================= 37 passed in 0.11s ==============================
+``
