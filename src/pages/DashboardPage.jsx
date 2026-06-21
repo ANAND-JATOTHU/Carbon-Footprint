@@ -16,7 +16,7 @@ import { CheckCircle, Plus, Leaf, Trash2 } from 'lucide-react'
 import TaskForm from '../components/TaskForm'
 
 function UserTasksPanel() {
-  const { user } = useApp()
+  const { user, updateUser } = useApp()
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -35,6 +35,8 @@ function UserTasksPanel() {
       await api.tasks.create(taskData.title, taskData.category, taskData.co2_saved)
       setShowForm(false)
       fetchTasks()
+      const updatedUser = await api.auth.me()
+      updateUser(updatedUser)
     } catch (e) {
       console.error(e)
     } finally {
@@ -46,6 +48,8 @@ function UserTasksPanel() {
     try {
       await api.tasks.delete(taskId)
       fetchTasks()
+      const updatedUser = await api.auth.me()
+      updateUser(updatedUser)
     } catch (e) {
       console.error(e)
     }

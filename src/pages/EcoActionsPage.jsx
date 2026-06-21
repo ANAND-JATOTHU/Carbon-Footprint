@@ -14,7 +14,7 @@ const CATEGORY_ICONS = { Diet: Leaf, Transport: Car, Home: Home, Energy: Zap }
 const CATEGORY_COLORS = { Diet: '#39FF14', Transport: '#00F0FF', Home: '#a855f7', Energy: '#f59e0b' }
 
 export default function EcoActionsPage() {
-  const { user }           = useApp()
+  const { user, updateUser } = useApp()
   const [actions, setAct]  = useState([])
   const [logged, setLog]   = useState([])
   const [loading, setLoad] = useState(null)
@@ -33,6 +33,8 @@ export default function EcoActionsPage() {
       const res = await api.carbon.logAction(action.id)
       setLog(p => [...p, action.id])
       setToast(`✅ Logged! −${res.co2_saved}kg CO₂ saved`)
+      const updatedUser = await api.auth.me()
+      updateUser(updatedUser)
       setTimeout(() => setToast(null), 3000)
     } catch (e) {
       setToast(`⚠ ${e.message}`)

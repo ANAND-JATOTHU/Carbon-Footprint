@@ -55,7 +55,7 @@ def generate_display_name() -> str:
 
 # ── DB helpers ────────────────────────────────────────────────
 # Use a global client instance
-db_client = AsyncClient(project="carbon-zero-500016")
+db_client = AsyncClient(project="carbon-2cd28")
 
 async def get_db():
     yield db_client

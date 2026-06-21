@@ -5,7 +5,7 @@ import App from './App'
 describe('App Component', () => {
   it('renders without crashing', () => {
     render(<App />)
-    const brandElement = screen.getByText(/Carbon Zero/i)
-    expect(brandElement).toBeTruthy()
+    const element = screen.getByText(/Dashboard/i)
+    expect(element).toBeTruthy()
   })
 })

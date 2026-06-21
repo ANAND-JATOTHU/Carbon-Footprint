@@ -34,6 +34,8 @@ export const api = {
   carbon: {
     submit: (diet, transport, home) =>
       request('/carbon/submit', { method: 'POST', body: JSON.stringify({ diet, transport, home }) }),
+    actions: () => request('/carbon/actions'),
+    logAction: (actionId) => request(`/carbon/actions/log/${actionId}`, { method: 'POST' }),
   },
   tasks: {
     get: () => request('/carbon/tasks'),

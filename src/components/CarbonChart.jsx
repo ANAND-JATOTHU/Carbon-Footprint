@@ -2,7 +2,7 @@
  * CarbonChart.jsx — Neon HUD donut chart with animated center counter.
  * Uses Recharts v3 PieChart with transparent fills + neon strokes.
  */
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useSpring, useTransform } from 'motion/react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingDown, TrendingUp } from 'lucide-react'
@@ -57,12 +57,16 @@ function NeonTooltip({ active, payload }) {
 }
 
 export default function CarbonChart({ user }) {
+  const [viewMode, setViewMode] = useState('yearly') // 'yearly' | 'daily'
   const dietFactor      = getFactor(DIET_OPTIONS, user.diet)
   const transportFactor = getFactor(TRANSPORT_OPTIONS, user.transport)
   const homeFactor      = getFactor(HOME_OPTIONS, user.home)
   const total           = user.total_co2
   const vsAvg           = ((total / GLOBAL_AVG_CO2) * 100 - 100).toFixed(0)
   const better          = total < GLOBAL_AVG_CO2
+
+  const multiplier = viewMode === 'daily' ? (1000 / 365) : 1
+  const displayTotal = total * multiplier
 
   const chartData = [
     { name: 'Diet',      value: dietFactor,      color: '#39FF14' },
@@ -72,6 +76,23 @@ export default function CarbonChart({ user }) {
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Toggle */}
+      <div className="flex justify-end -mt-10 mb-2">
+        <div className="flex gap-1 p-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          <button 
+            onClick={() => setViewMode('yearly')}
+            className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${viewMode === 'yearly' ? 'bg-[#00F0FF] text-black font-bold' : 'text-gray-400 hover:text-white'}`}
+          >
+            Yearly
+          </button>
+          <button 
+            onClick={() => setViewMode('daily')}
+            className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${viewMode === 'daily' ? 'bg-[#00F0FF] text-black font-bold' : 'text-gray-400 hover:text-white'}`}
+          >
+            Daily
+          </button>
+        </div>
+      </div>
       {/* Donut + score */}
       <div className="relative flex items-center justify-center gap-8 flex-wrap">
         {/* Neon donut chart */}
@@ -121,10 +142,10 @@ export default function CarbonChart({ user }) {
                 lineHeight: 1,
               }}
             >
-              <AnimatedCounter value={total} />
+              <AnimatedCounter value={displayTotal} />
             </motion.div>
             <div className="text-xs font-mono mt-1" style={{ color: 'rgba(0,240,255,0.5)' }}>
-              MTCO₂e/yr
+              {viewMode === 'yearly' ? 'MTCO₂e/yr' : 'kgCO₂e/day'}
             </div>
           </div>
 
@@ -177,7 +198,7 @@ export default function CarbonChart({ user }) {
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-mono" style={{ color: seg.color }}>{val.toFixed(1)}t</span>
+                    <span className="text-xs font-mono" style={{ color: seg.color }}>{(val * multiplier).toFixed(1)}{viewMode === 'yearly' ? 't' : 'kg'}</span>
                     <span className="text-xs font-mono ml-1" style={{ color: 'rgba(255,255,255,0.3)' }}>({pct}%)</span>
                   </div>
                 </div>

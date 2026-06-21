@@ -11,6 +11,18 @@ from broadcaster import broadcaster
 
 router = APIRouter()
 
+# ── Static Eco Actions ───────────────────────────────────────
+ECO_ACTIONS = [
+    {"id": "diet_vegan", "title": "Ate a fully vegan meal", "category": "Diet", "co2_reduction": 1.5},
+    {"id": "diet_local", "title": "Bought locally sourced groceries", "category": "Diet", "co2_reduction": 0.8},
+    {"id": "trans_bike", "title": "Commuted by bike instead of car", "category": "Transport", "co2_reduction": 2.4},
+    {"id": "trans_transit", "title": "Used public transportation", "category": "Transport", "co2_reduction": 1.8},
+    {"id": "home_led", "title": "Upgraded to LED lighting", "category": "Home", "co2_reduction": 0.5},
+    {"id": "energy_cold", "title": "Washed laundry in cold water", "category": "Energy", "co2_reduction": 0.6},
+    {"id": "energy_solar", "title": "Installed solar panels", "category": "Energy", "co2_reduction": 15.0},
+    {"id": "home_compost", "title": "Started composting food waste", "category": "Home", "co2_reduction": 0.9},
+]
+
 # ── Custom Tasks API ─────────────────────────────────────────
 
 class SubmitBody(BaseModel):
@@ -127,10 +139,15 @@ async def create_task(
 
     user_ref = db.collection("users").document(user_id)
     user_doc = await user_ref.get()
+    
+    # Update total CO2
+    user_data = user_doc.to_dict()
+    new_co2 = max(0.0, round(user_data.get("total_co2", 0) - body.co2_saved, 2))
+    await user_ref.update({"total_co2": new_co2})
 
     await broadcaster.publish(
         "ACTION",
-        f"Custom task logged: '{body.title}' · −{body.co2_saved}kg · {user_doc.to_dict().get('display_name')}",
+        f"Custom task logged: '{body.title}' · −{body.co2_saved}kg · {user_data.get('display_name')}",
     )
 
     return {"message": "Task created", "id": task_id}
@@ -147,5 +164,62 @@ async def delete_task(
     if not doc.exists or doc.to_dict().get("user_id") != user_id:
         raise HTTPException(status_code=404, detail="Task not found or not authorized")
             
+    task_data = doc.to_dict()
+    
+    # Re-add the CO2 to the user's total
+    user_ref = db.collection("users").document(user_id)
+    user_doc = await user_ref.get()
+    if user_doc.exists:
+        user_data = user_doc.to_dict()
+        new_co2 = round(user_data.get("total_co2", 0) + task_data.get("co2_saved", 0), 2)
+        await user_ref.update({"total_co2": new_co2})
+
     await task_ref.delete()
     return {"message": "Task deleted"}
+
+# ── Eco Actions API ──────────────────────────────────────────
+
+@router.get("/actions")
+async def get_actions():
+    return ECO_ACTIONS
+
+@router.post("/actions/log/{action_id}")
+async def log_action(
+    action_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncClient = Depends(get_db),
+):
+    action = next((a for a in ECO_ACTIONS if a["id"] == action_id), None)
+    if not action:
+        raise HTTPException(status_code=404, detail="Action not found")
+        
+    user_ref = db.collection("users").document(user_id)
+    doc = await user_ref.get()
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_data = doc.to_dict()
+    # Ensure CO2 doesn't go below 0
+    new_co2 = max(0.0, round(user_data.get("total_co2", 0) - action["co2_reduction"], 2))
+    
+    # 1. Update user total CO2
+    await user_ref.update({"total_co2": new_co2})
+    
+    # 2. Add to user tasks so it shows up on dashboard
+    task_id = str(uuid.uuid4())
+    task_ref = db.collection("user_tasks").document(task_id)
+    await task_ref.set({
+        "id": task_id,
+        "user_id": user_id,
+        "title": action["title"],
+        "category": action["category"],
+        "co2_saved": action["co2_reduction"],
+        "logged_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    await broadcaster.publish(
+        "ACTION", 
+        f"Eco Action: {user_data.get('display_name')} {action['title'].lower()} (-{action['co2_reduction']}kg)"
+    )
+    
+    return {"message": "Action logged", "co2_saved": action["co2_reduction"]}

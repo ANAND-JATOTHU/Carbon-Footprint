@@ -13,7 +13,7 @@ from typing import Optional
 try:
     firebase_admin.get_app()
 except ValueError:
-    firebase_admin.initialize_app()
+    firebase_admin.initialize_app(options={'projectId': 'carbon-2cd28'})
 
 security = HTTPBearer(auto_error=False)
 
