@@ -147,7 +147,7 @@ export default function DashboardPage() {
   const hasData = user?.has_submitted
 
   return (
-    <div className="min-h-dvh pt-20 px-4 pb-8 md:px-6 lg:px-8" style={{ background: '#0A0E17' }}>
+    <div id="main-content" role="main" aria-label="Dashboard" className="min-h-dvh pt-20 px-4 pb-8 md:px-6 lg:px-8" style={{ background: '#0A0E17' }}>
       {/* Page title */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}

@@ -5,17 +5,30 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="CarbonZero — A privacy-first, zero-knowledge carbon footprint tracker with real-time anti-cheat security monitoring. Track your CO₂ impact without sacrificing your data." />
-    <meta name="keywords" content="carbon footprint, sustainability, privacy, security, eco tracker, climate" />
+    <meta name="keywords" content="carbon footprint, sustainability, privacy, security, eco tracker, climate, CO2, emissions, carbon calculator" />
+    <meta name="author" content="CarbonZero Team" />
+    <meta name="theme-color" content="#0A0E17" />
     <meta property="og:title" content="CarbonZero — Privacy-First Carbon Tracker" />
     <meta property="og:description" content="Track your CO₂ impact. Zero surveillance. Maximum security." />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="robots" content="index, follow" />
     <title>CarbonZero — Privacy-First Carbon Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Skip to main content link for keyboard/screen-reader users -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:bg-cyan-500 focus:text-black focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-bold" id="skip-nav">
+      Skip to main content
+    </a>
+    <div id="root" role="application" aria-label="CarbonZero Carbon Footprint Tracker"></div>
+    <noscript>
+      <p style="color: white; background: #0A0E17; padding: 2rem; text-align: center;">
+        CarbonZero requires JavaScript to run. Please enable JavaScript in your browser settings.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
