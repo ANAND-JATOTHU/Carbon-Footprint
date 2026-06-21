@@ -159,7 +159,7 @@ export default function CarbonChart({ user }) {
         </div>
 
         {/* Breakdown legend */}
-        <div className="flex flex-col gap-3 flex-1 min-w-[160px]">
+        <div className="flex flex-col gap-3 w-full md:flex-1 md:min-w-[240px] mt-4 md:mt-0">
           {/* vs. Global avg */}
           <div
             className="flex items-center gap-2 px-3 py-2 rounded-xl"
@@ -207,7 +207,7 @@ export default function CarbonChart({ user }) {
                     className="h-full rounded-full"
                     style={{ background: seg.color, boxShadow: `0 0 8px ${seg.color}80` }}
                     initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
+                    animate={{ width: `${Math.min(pct, 100)}%` }}
                     transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
                   />
                 </div>
